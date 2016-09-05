@@ -48,7 +48,7 @@ static int do_debug() {
 	return (debug || getenv(libsysconfcpus_debug_envvar));
 }
 
-static void dprintf(char *fmt, ...) {
+static void debugprintf(char *fmt, ...) {
 	va_list ap;
 	if (do_debug()) {
 		va_start(ap, fmt);
@@ -66,11 +66,11 @@ static void _libsysconfcpus_init(void) __attribute__((constructor));
 static void _libsysconfcpus_fini(void) __attribute__((destructor));
 
 static void _libsysconfcpus_init(void) {
-	dprintf("libsysconfcpus: starting up\n");
+	debugprintf("libsysconfcpus: starting up\n");
 }
 
 static void _libsysconfcpus_fini(void) {
-	dprintf("libsysconfcpus: shutting down\n");
+	debugprintf("libsysconfcpus: shutting down\n");
 }
 
 
@@ -90,7 +90,7 @@ long sysconf(int name) {
 	const char *err;
 	char *endptr;
 
-	dprintf("libsysconfcpus: sysconf(%d): entered\n", name);
+	debugprintf("libsysconfcpus: sysconf(%d): entered\n", name);
 
 	if (!libc_handle) {
 #if defined(RTLD_NEXT)
@@ -98,7 +98,7 @@ long sysconf(int name) {
 #else
 		libc_handle = dlopen("libc.so.6", RTLD_LAZY);
 #endif
-		dprintf("libsysconfcpus: sysconf: libc_handle = 0x%x\n", libc_handle);
+		debugprintf("libsysconfcpus: sysconf: libc_handle = 0x%x\n", libc_handle);
 		if (!libc_handle) {
 			fprintf(stderr, "libsysconfcpus: Error: Unable to find libc.so: %s\n", dlerror());
 			exit(1);
@@ -106,10 +106,10 @@ long sysconf(int name) {
 
 		dlerror();
 		underlying = dlsym(libc_handle, "sysconf");
-		dprintf("libsysconfcpus: sysconf: underlying = 0x%x\n", underlying);
+		debugprintf("libsysconfcpus: sysconf: underlying = 0x%x\n", underlying);
 		err = dlerror();
 		if (err) {
-			dprintf("libsysconfcpus: sysconf: err = \"%s\"\n", err);
+			debugprintf("libsysconfcpus: sysconf: err = \"%s\"\n", err);
 		}
 		if (!underlying || err) {
 			fprintf(stderr, "libsysconfcpus: Error: Unable to find the underlying sysconf(): %s\n", dlerror());
@@ -117,18 +117,18 @@ long sysconf(int name) {
 		}
 	}
 
-	dprintf("libsysconfcpus: about to call underlying sysconf()\n");
+	debugprintf("libsysconfcpus: about to call underlying sysconf()\n");
 	retval = (*underlying)(name);
-	dprintf("libsysconfcpus: underlying sysconf(%d) = %ld\n", name, retval);
+	debugprintf("libsysconfcpus: underlying sysconf(%d) = %ld\n", name, retval);
 
 	envvar = NULL;
 	switch (name) {
 		case _SC_NPROCESSORS_CONF:
-			dprintf("libsysconfcpus: sysconf(_SC_NPROCESSORS_CONF)\n");
+			debugprintf("libsysconfcpus: sysconf(_SC_NPROCESSORS_CONF)\n");
 			envvar = libsysconfcpus_conf_envvar;
 			break;
 		case _SC_NPROCESSORS_ONLN:
-			dprintf("libsysconfcpus: sysconf(_SC_NPROCESSORS_ONLN)\n");
+			debugprintf("libsysconfcpus: sysconf(_SC_NPROCESSORS_ONLN)\n");
 			envvar = libsysconfcpus_onln_envvar;
 			break;
 	}
@@ -140,19 +140,19 @@ long sysconf(int name) {
 			env = getenv(envvar_use);
 		}
 		if (env) {
-			dprintf("libsysconfcpus: $%s = \"%s\"\n", envvar_use, env);
+			debugprintf("libsysconfcpus: $%s = \"%s\"\n", envvar_use, env);
 			v = strtol(env, &endptr, 10);
 			if (endptr == env) {
-				dprintf("libsysconfcpus: Warning: $%s does not contain a number, cannot override\n", envvar_use);
+				debugprintf("libsysconfcpus: Warning: $%s does not contain a number, cannot override\n", envvar_use);
 			} else {
 				retval = v;
 			}
 		} else {
-			dprintf("libsysconfcpus: Warning: neither $%s nor $%s are set, cannot override\n", envvar, libsysconfcpus_envvar);
+			debugprintf("libsysconfcpus: Warning: neither $%s nor $%s are set, cannot override\n", envvar, libsysconfcpus_envvar);
 		}
 	}
 
-	dprintf("libsysconfcpus: sysconf(%d) = %ld\n", name, retval);
+	debugprintf("libsysconfcpus: sysconf(%d) = %ld\n", name, retval);
 
 	return retval;
 }
