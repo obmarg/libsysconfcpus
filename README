@@ -1,0 +1,87 @@
+
+LIBSYSCONFCPUS 0.5
+==================
+
+by Kevin Pulo, kev@pulo.com.au
+http://www.kev.pulo.com.au/libsysconfcpus/
+Copyright (c) 2008-2009
+Licensed under the GNU GPL v2 or higher, as per the COPYING file.
+
+
+DESCRIPTION
+-----------
+
+libsysconfcpus is an $LD_PRELOAD library that intercepts calls to sysconf(),
+and adjusts the responses for _SC_NPROCESSORS_CONF and _SC_NPROCESSORS_ONLN,
+which are used to determine the number of processors available (either
+configured or online) at runtime in a system.  Unfortunately, some closed-
+source software assumes that all of these processors may be used for
+computation, which is an assumption that is frequently not true on multiuser
+and HPC systems.  Thus, libsysconfcpus provides a simple, non-intrusive way of
+adjusting the behaviour of such software (when it is dynamically linked).
+
+In addition, libsysconfcpus is a small, simple example of how to use
+$LD_PRELOAD to do function call interception on glibc and POSIX systems.  It is
+hoped that it is useful not only inherently, but also for learning about
+$LD_PRELOAD, and as a template or skeleton LD_PRELOAD library.  Its
+from-scratch development was used to illustrate LD_PRELOAD usage in the "Fun
+with LD_PRELOAD" presentation by the author at linux.conf.au 2009 in Hobart.
+
+
+INSTALLATION
+------------
+
+Standard autoconf process:  ./configure && make && make install
+
+
+USAGE
+-----
+
+    sysconfcpus [options] <program> [args...]
+
+Valid options are:
+
+    -v, --version   Display the sysconfcpus version
+    -h, --help      Display this help
+    -d, --debug     Display debug info
+
+    -n, --num <n>   Number of processors (both conf and onln)
+    -c, --conf <n>  Number of processors (conf(igured))
+    -o, --onln <n>  Number of processors (online)
+
+
+EXAMPLEs
+--------
+
+$ test-sysconfcpus 
+sysconf(_SC_NPROCESSORS_CONF) = 2
+sysconf(_SC_NPROCESSORS_ONLN) = 2
+$ sysconfcpus -n 8 test-sysconfcpus 
+sysconf(_SC_NPROCESSORS_CONF) = 8
+sysconf(_SC_NPROCESSORS_ONLN) = 8
+$ sysconfcpus -c 8 -o 6 test-sysconfcpus 
+sysconf(_SC_NPROCESSORS_CONF) = 8
+sysconf(_SC_NPROCESSORS_ONLN) = 6
+$ 
+
+
+LIMITATIONS
+-----------
+
+- Only dynamically linked binaries
+
+
+FEEDBACK
+--------
+
+Comments, feature suggestions, bug reports, patches, etc are most
+welcome, please send them to Kevin Pulo <kev@pulo.com.au>.
+
+
+SEE ALSO
+--------
+
+- ltrace
+- strace
+
+

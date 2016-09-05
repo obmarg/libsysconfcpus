@@ -1,0 +1,28 @@
+
+v0.5: Extra features
+- Use $LIBSYSCONFCPUS_CONF and $LIBSYSCONFCPUS_ONLN, with $LIBSYSCONFCPUS as
+  a fallback.
+- The sysconfcpus and sysconfcpus-debug shell scripts accept basic command
+  line parameters.
+- Add simple test-sysconfcpus program.
+
+
+v0.4: Adjust sysconf() behaviour
+- For sysconf(_SC_NPROCESSORS_CONF) and sysconf(_SC_NPROCESSORS_ONLN), if
+  $LIBSYSCONFCPUS is set to a number, use that as the override return value.
+
+
+v0.3: Intercept sysconf()
+- Add sysconf() function that calls the real sysconf().
+
+
+v0.2: Library debug and init
+- Add dprintf(), controlled by $LIBSYSCONFCPUS_DEBUG.
+- Add init/fini library startup/shutdown functions.
+- Add sysconfcpus and sysconfcpus-debug helper shell scripts.
+
+
+v0.1: Empty base project
+- Library does nothing.
+
+

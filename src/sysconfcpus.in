@@ -1,0 +1,97 @@
+#!/bin/sh
+
+# libsysconfcpus: adjust number of CPUs reported by sysconf()
+# Copyright (C) 2008-2009 Kevin Pulo
+# 
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
+# 
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# Contact:
+# Kevin Pulo
+# kev@pulo.com.au
+
+function version {
+	echo "sysconfcpus version @version@"
+}
+
+function help {
+	version
+	echo "Usage:"
+	echo -n "    sysconfcpus"
+	echo " [options] <command> <args> ..."
+	echo "Valid options are:"
+	echo "    -v, --version   Display the sysconfcpus version"
+	echo "    -h, --help      Display this help"
+	echo "    -d, --debug     Display debug info"
+	echo "    -n, --num <n>   Number of processors (both conf and onln)"
+	echo "    -c, --conf <n>  Number of processors (conf(igured))"
+	echo "    -o, --onln <n>  Number of processors (online)"
+}
+
+if [ $# -eq 0 ]; then
+	help
+	exit 0
+fi
+
+num=""
+conf=""
+onln=""
+while :; do
+	case "$1" in
+		-v|--version)
+			version
+			exit 0
+			;;
+		-h|--help)
+			help
+			exit 0
+			;;
+		-d|--debug)
+			LIBSYSCONFCPUS_DEBUG=y
+			export LIBSYSCONFCPUS_DEBUG
+			shift
+			;;
+		-n|--num)
+			num="$2"
+			shift 2
+			;;
+		-c|--conf)
+			conf="$2"
+			shift 2
+			;;
+		-o|--onln|--online)
+			onln="$2"
+			shift 2
+			;;
+		*)
+			break
+			;;
+	esac
+done
+
+if [ "x$num" != "x" ]; then
+	LIBSYSCONFCPUS="$num"
+	export LIBSYSCONFCPUS
+fi
+if [ "x$conf" != "x" ]; then
+	LIBSYSCONFCPUS_CONF="$conf"
+	export LIBSYSCONFCPUS_CONF
+fi
+if [ "x$onln" != "x" ]; then
+	LIBSYSCONFCPUS_ONLN="$onln"
+	export LIBSYSCONFCPUS_ONLN
+fi
+
+LD_PRELOAD="@libdir@/libsysconfcpus.so:$LD_PRELOAD" exec "$@"
+
