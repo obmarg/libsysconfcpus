@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # libsysconfcpus: adjust number of CPUs reported by sysconf()
 # Copyright (C) 2008-2009 Kevin Pulo
